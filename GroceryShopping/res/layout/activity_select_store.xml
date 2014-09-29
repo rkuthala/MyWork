@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+<TextView android:id="@+id/statetext"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text="Select State:"
+    android:textStyle="bold|italic"
+    android:layout_margin="15dp"/>
+<Spinner
+    android:id="@+id/selectstate"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/statetext"
+    android:layout_margin="10dp"/>
+
+<TextView android:id="@+id/citytext"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/selectstate"
+    android:textStyle="bold|italic"
+    android:text="Select City:"
+    android:layout_margin="15dp"
+    android:visibility="gone"/>
+<Spinner
+    android:id="@+id/selectcity"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/citytext"
+    android:layout_margin="10dp"
+    android:visibility="gone"/>
+
+<TextView android:id="@+id/storetext"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/selectcity"
+    android:textStyle="bold|italic"
+    android:text="Select Store"
+    android:layout_margin="15dp"
+    android:visibility="gone"/>
+<Spinner
+    android:id="@+id/selectstore"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/storetext"
+    android:layout_margin="10dp"
+    android:visibility="gone"/>
+
+<TextView 
+    android:id="@+id/errormessage"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_below="@+id/selectstore"
+    android:visibility="gone"
+    android:textColor="#E61414"/>
+
+<Button android:id="@+id/startshopping"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignRight="@+id/selectstate"
+    android:layout_below="@+id/selectstore"
+    android:visibility="gone"
+    android:gravity="center"
+    android:textColor="#FFFFFF"
+    android:background="@drawable/btnselector"
+    android:text="Start Shopping"/>
+</RelativeLayout>
