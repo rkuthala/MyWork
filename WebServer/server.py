@@ -1,5 +1,6 @@
 from socket import *
 from os import path, curdir, sep
+import threading
 
 from request import *
 from response import *
@@ -10,68 +11,80 @@ serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 serverSocket.bind(("0.0.0.0", 8093))
 serverSocket.listen(5)
 
-while True: 
+class mythread(threading.Thread):
+
+    def __init__(self, socket, addr):
+        threading.Thread.__init__(self)
+        self.socket = socket
+        self.addr = addr
+
+    def run(self):
+        self.responseObj = response()
+        self.responseCode = 200
+        self.mimetype = 'text/plain'
+        try:
+            self.message = self.socket.recv(4096)
+            self.requestObj = request(self.message)
+            self.reqParsed = self.requestObj.parse();
+
+            if self.reqParsed == False:
+                raise Exception("Server Error")
+
+            self.resource = self.requestObj.getResource()
+            if self.resource == "/":
+                self.resource = "/index.html"
+
+            self.fileExists = path.isfile(curdir + sep + self.resource)
+
+            if self.fileExists == False:
+                raise IOError("File Not Found")
+
+            self.responseCode = 200
+            
+            if self.resource.endswith(".html"):
+                self.mimetype='text/html'
+            elif self.resource.endswith(".jpg"):
+                self.mimetype='image/jpg'
+            elif self.resource.endswith(".png"):
+                self.mimetype='image/png'
+            elif self.resource.endswith(".gif"):
+                self.mimetype='image/gif'
+            elif self.resource.endswith(".js"):
+                self.mimetype='application/javascript'
+            elif self.resource.endswith(".css"):
+                self.mimetype='text/css'
+            elif self.resource.endswith(".pdf"):
+                self.mimetype='application/pdf'
+            else:
+                self.mimetype='text/plain'
+            
+            self.filename = curdir + sep + self.resource
+            with open(self.filename, "rb") as self.f:
+                self.responseContent = self.f.read()
+        
+        except IOError, e:
+            self.responseCode = 404
+            self.mimetype = "text/html"
+            self.responseContent = "<h1>File Not Found</h1>"
+
+        except Exception,  e:
+            self.responseCode = 500
+            self.mimetype = "text/html"
+            self.responseContent = "<h1>Internal Server Error</h1>"
+
+        except:
+            print 'Unhandled exception'
+
+        self.responseObj.setResponseLine(self.responseCode)
+        self.responseObj.setHeader("Content-type", self.mimetype) 
+        self.responseObj.setContent(self.responseContent)
+        self.socket.send(self.responseObj.toString())
+        self.socket.close()
+
+print "Server started"
+while True:
     connectionSocket, addr = serverSocket.accept()
-    responseObj = response()
-    responseCode = 200
-    mimetype = 'text/plain'
-    try: 
-        message = connectionSocket.recv(4096)
-        requestObj = request(message)
-        reqParsed = requestObj.parse();
-
-        if reqParsed == False:
-            raise Exception("Server Error")
-
-        resource = requestObj.getResource()
-        if resource == "/":
-            resource = "/index.html"
-           
-        fileExists = path.isfile(curdir + sep + resource)
-
-        if fileExists == False:
-            raise IOError("File Not Found")
-
-        responseCode = 200    
-        
-        if resource.endswith(".html"):
-            mimetype='text/html'
-        elif resource.endswith(".jpg"):
-            mimetype='image/jpg'
-        elif resource.endswith(".png"):
-            mimetype='image/png'
-        elif resource.endswith(".gif"):
-            mimetype='image/gif'
-        elif resource.endswith(".js"):
-            mimetype='application/javascript'
-        elif resource.endswith(".css"):
-            mimetype='text/css'
-        elif resource.endswith(".pdf"):
-            mimetype='application/pdf'
-        else:
-            mimetype='text/plain'
-            
-        filename = curdir + sep + resource
-        with open(filename, "rb") as f:
-            responseContent = f.read()
-         
-    except IOError, e:
-        responseCode = 404
-        mimetype = "text/html"
-        responseContent = "<h1>File Not Found</h1>"
-            
-    except Exception,  e:
-        responseCode = 500
-        mimetype = "text/html"
-        responseContent = "<h1>Internal Server Error</h1>"
-        
-    except:
-        print 'Un handled exception'
-
-    responseObj.setResponseLine(responseCode)
-    responseObj.setHeader("Content-type", mimetype) 
-    responseObj.setContent(responseContent)
-    connectionSocket.send(responseObj.toString())
-    connectionSocket.close()
+    print "Serving client (%s, %s)" % addr
+    mythread(connectionSocket, addr).start()
 
 serverSocket.close()

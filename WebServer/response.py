@@ -10,18 +10,26 @@ class response:
         
     def __init__(self):
         self.response = StringIO.StringIO()
+        self.headers = {}
         
     def setResponseLine(self, code):
-        self.response.write("%s %s %s\r\n" % (self.httpVersion, code, self.responseMessage[code]))
+        self.code = code;
         
     def setHeader(self, name, value):
-        self.response.write("%s: %s\r\n" % (name, value))
+        self.headers[name] = value
                 
     def setContent(self, content):
-        self.response.write("\r\n")
-        self.response.write(content)
+        self.content = content
 
     def toString(self):
+        self.response.write("%s %s %s\r\n" % (self.httpVersion, self.code, self.responseMessage[self.code]))
+
+        self.keys = self.headers.keys()
+        for self.key in self.keys:
+            self.response.write("%s: %s\r\n" % (self.key, self.headers[self.key]))
+
+        self.response.write("\r\n")
+        self.response.write(self.content)
         returnVal = self.response.getvalue()
         self.response.close()
         return returnVal

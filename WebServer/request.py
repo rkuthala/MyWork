@@ -5,14 +5,16 @@ class request:
         self.method = ""
         self.resource = ""
 
-    def parse(self):
-        requestline = re.split('\\r\\n', self.message)[0]
+    def parse(self):#parsing only for Method and Resource
         try:
+            requestline = re.split('\\r\\n', self.message)[0]
             req = requestline.split()
             self.method = req[0]
             self.resource = req[1]
         except IndexError, e:
             return False        
+        except:
+            return False
 
         return True
     
