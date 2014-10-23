@@ -22,6 +22,7 @@ class mythread(threading.Thread):
         self.responseObj = response()
         self.responseCode = 200
         self.mimetype = 'text/plain'
+        self.resource = ' '
         try:
             self.message = self.socket.recv(4096)
             self.requestObj = request(self.message)
