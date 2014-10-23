@@ -80,11 +80,13 @@ class mythread(threading.Thread):
         self.responseObj.setContent(self.responseContent)
         self.socket.send(self.responseObj.toString())
         self.socket.close()
+        print self.addr, " requested resource '", self.resource, "' response code: ", self.responseCode
 
 print "Server started"
 while True:
     connectionSocket, addr = serverSocket.accept()
     print "Serving client (%s, %s)" % addr
+
     mythread(connectionSocket, addr).start()
 
 serverSocket.close()
